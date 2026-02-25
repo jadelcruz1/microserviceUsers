@@ -1,43 +1,50 @@
-# Microservices Architecture with Spring Boot & Spring Cloud
+# Arquitetura de Microserviços com Spring Boot e Spring Cloud
 
-## Overview
+## 📌 Visão Geral
 
-This project demonstrates a complete microservices architecture built
-with Spring Boot and Spring Cloud.\
-It was designed as a hands-on learning project to understand service
-discovery, API Gateway routing, load balancing, and inter-service
-communication.
+Este projeto demonstra uma arquitetura completa de microserviços
+utilizando Spring Boot e Spring Cloud.
 
-The architecture follows modern distributed system principles and
-simulates a production-like environment locally.
+Foi desenvolvido com foco em aprendizado prático, simulando um ambiente
+próximo ao utilizado em produção, incluindo:
+
+-   Service Discovery
+-   API Gateway
+-   Load Balancing
+-   Comunicação entre microsserviços
+-   Escalabilidade horizontal
+-   Banco de dados em memória (H2)
+
+O objetivo é demonstrar domínio dos fundamentos de arquitetura
+distribuída utilizando o ecossistema Spring.
 
 ------------------------------------------------------------------------
 
-## Architecture Components
+## 🏗️ Arquitetura do Sistema
 
-The system is composed of four independent services:
+O sistema é composto por quatro aplicações independentes:
 
 -   **eureka-server** → Service Discovery
--   **api-gateway** → Centralized Routing
--   **user-service** → User management (H2 database)
--   **order-service** → Order management with inter-service
-    communication
+-   **api-gateway** → Roteamento centralizado
+-   **user-service** → Serviço de usuários (H2)
+-   **order-service** → Serviço de pedidos com comunicação entre
+    serviços
 
 ------------------------------------------------------------------------
 
-## Architecture Summary
+## 🧠 Resumo de Arquiteto
 
-  Component        Responsibility
-  ---------------- --------------------------------------------------------
+  Componente       Função
+  ---------------- ----------------------------------------
   Eureka           Service Discovery
-  API Gateway      Centralized routing
-  lb://            Client-side load balancing
-  Local Cache      Fault tolerance when Eureka is temporarily unavailable
-  server.port: 0   Horizontal scalability simulation
+  Gateway          Roteamento centralizado
+  lb://            Load balancing automático
+  Cache local      Tolerância a falhas
+  server.port: 0   Simulação de escalabilidade horizontal
 
 ------------------------------------------------------------------------
 
-## Technology Stack
+## 🛠️ Tecnologias Utilizadas
 
 -   Java 17
 -   Spring Boot 3.x
@@ -51,21 +58,21 @@ The system is composed of four independent services:
 
 ------------------------------------------------------------------------
 
-# Services Description
+# 📦 Descrição dos Serviços
 
-## 1. Eureka Server
+## 1️⃣ Eureka Server
 
-### Purpose
+### 🎯 Responsabilidade
 
-Acts as the Service Registry where all microservices register
-themselves.
+Atua como Service Registry. Todos os microsserviços se registram nele
+para que possam ser descobertos dinamicamente.
 
-### Dependencies
+### 📦 Dependências
 
 -   spring-boot-starter-web
 -   spring-cloud-starter-netflix-eureka-server
 
-### Configuration
+### ⚙️ Configuração
 
 ``` yaml
 server:
@@ -77,19 +84,20 @@ eureka:
     fetch-registry: false
 ```
 
-Access Dashboard:
+Acessar dashboard:
 
     http://localhost:8761
 
 ------------------------------------------------------------------------
 
-## 2. User Service
+## 2️⃣ User Service
 
-### Purpose
+### 🎯 Responsabilidade
 
-Handles user CRUD operations using an in-memory H2 database.
+Gerencia operações de usuários (CRUD básico) utilizando banco H2 em
+memória.
 
-### Dependencies
+### 📦 Dependências
 
 -   spring-boot-starter-web
 -   spring-boot-starter-data-jpa
@@ -97,7 +105,7 @@ Handles user CRUD operations using an in-memory H2 database.
 -   spring-cloud-starter-netflix-eureka-client
 -   spring-cloud-starter-openfeign
 
-### Key Configuration
+### ⚙️ Configuração Principal
 
 ``` yaml
 server:
@@ -108,18 +116,18 @@ spring:
     name: user-service
 ```
 
-Using `server.port: 0` allows multiple instances to run simultaneously,
-enabling horizontal scaling simulation.
+A configuração `server.port: 0` permite que múltiplas instâncias rodem
+simultaneamente, simulando escalabilidade horizontal.
 
 ------------------------------------------------------------------------
 
-## 3. Order Service
+## 3️⃣ Order Service
 
-### Purpose
+### 🎯 Responsabilidade
 
-Creates orders and communicates with the User Service using OpenFeign.
+Cria pedidos e realiza comunicação com o User Service via OpenFeign.
 
-### Dependencies
+### 📦 Dependências
 
 -   spring-boot-starter-web
 -   spring-boot-starter-data-jpa
@@ -127,29 +135,30 @@ Creates orders and communicates with the User Service using OpenFeign.
 -   spring-cloud-starter-netflix-eureka-client
 -   spring-cloud-starter-openfeign
 
-### Inter-service Communication
+### 🔄 Comunicação entre serviços
 
 ``` java
 @FeignClient(name = "user-service")
 ```
 
-The service dynamically discovers user-service instances via Eureka.
+O serviço descobre dinamicamente as instâncias disponíveis através do
+Eureka.
 
 ------------------------------------------------------------------------
 
-## 4. API Gateway
+## 4️⃣ API Gateway
 
-### Purpose
+### 🎯 Responsabilidade
 
-Single entry point for all client requests. Routes traffic dynamically
-using service discovery.
+Ponto único de entrada do sistema. Responsável por rotear requisições
+para os microsserviços corretos.
 
-### Dependencies
+### 📦 Dependências
 
 -   spring-cloud-starter-gateway
 -   spring-cloud-starter-netflix-eureka-client
 
-### Routing Configuration
+### ⚙️ Configuração de Rotas
 
 ``` yaml
 spring:
@@ -167,78 +176,78 @@ spring:
             - Path=/orders/**
 ```
 
-The `lb://` protocol enables automatic load balancing across service
-instances.
+O prefixo `lb://` ativa o LoadBalancer automaticamente utilizando o
+registry do Eureka.
 
 ------------------------------------------------------------------------
 
-# Request Flow
+# 🔄 Fluxo de Requisição
 
-Client → API Gateway → Eureka → Target Microservice
+Cliente → API Gateway → Eureka → Microsserviço alvo
 
-1.  Client calls API Gateway
-2.  Gateway consults Eureka
-3.  Eureka returns available instances
-4.  LoadBalancer selects an instance
-5.  Request is forwarded
-
-------------------------------------------------------------------------
-
-# How to Run the Project
-
-### 1. Start Eureka Server
-
-Run the `eureka-server` application.
-
-### 2. Start User Service
-
-Run the `user-service` application.
-
-### 3. Start Order Service
-
-Run the `order-service` application.
-
-### 4. Start API Gateway
-
-Run the `api-gateway` application.
+1.  Cliente envia requisição ao Gateway
+2.  Gateway consulta o Eureka
+3.  Eureka retorna as instâncias disponíveis
+4.  LoadBalancer seleciona uma instância
+5.  Requisição é encaminhada
 
 ------------------------------------------------------------------------
 
-# Access Endpoints (via Gateway)
+# 🚀 Como Executar o Projeto
+
+### 1️⃣ Subir o Eureka Server
+
+Executar a aplicação `eureka-server`.
+
+### 2️⃣ Subir o User Service
+
+Executar a aplicação `user-service`.
+
+### 3️⃣ Subir o Order Service
+
+Executar a aplicação `order-service`.
+
+### 4️⃣ Subir o API Gateway
+
+Executar a aplicação `api-gateway`.
+
+------------------------------------------------------------------------
+
+# 🌍 Acessar os Endpoints (via Gateway)
 
     http://localhost:8080/users
     http://localhost:8080/orders
 
 ------------------------------------------------------------------------
 
-# Concepts Demonstrated
+# 📚 Conceitos Demonstrados
 
 -   Service Discovery
--   API Gateway Pattern
--   Client-side Load Balancing
--   Horizontal Scaling Simulation
--   Inter-service Communication (Feign)
--   Fault Tolerance via Local Registry Cache
--   In-memory Database (H2)
--   Distributed Architecture Fundamentals
+-   Padrão API Gateway
+-   Load Balancing Client-Side
+-   Escalabilidade Horizontal
+-   Comunicação entre Microsserviços
+-   Tolerância a Falhas via Cache Local
+-   Banco em memória (H2)
+-   Fundamentos de Arquitetura Distribuída
 
 ------------------------------------------------------------------------
 
-# Future Improvements
+# 🚀 Próximas Evoluções
 
--   JWT Authentication with Spring Security
+-   Autenticação com JWT + Spring Security
 -   Circuit Breaker (Resilience4j)
 -   Config Server
--   Docker & Docker Compose
--   Observability (Zipkin / Micrometer)
--   PostgreSQL integration
--   Kubernetes deployment
--   Integration & Unit Testing
+-   Docker e Docker Compose
+-   Observabilidade (Zipkin / Micrometer)
+-   Integração com PostgreSQL
+-   Deploy em Kubernetes
+-   Testes automatizados
 
 ------------------------------------------------------------------------
 
-## Author
+## 👨‍💻 Autor
 
-Project created for learning and portfolio purposes to demonstrate
-understanding of modern microservices architecture using Spring
-ecosystem.
+Projeto desenvolvido para fins educacionais e portfólio, demonstrando
+conhecimento prático em arquitetura de microserviços com o ecossistema
+Spring.
