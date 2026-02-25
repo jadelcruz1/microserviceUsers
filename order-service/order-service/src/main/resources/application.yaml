@@ -1,5 +1,6 @@
 server:
   port: 0
+  address: 127.0.0.1 # opcional: evita exposição direta fora da malha local
 
 spring:
   application:
@@ -13,6 +14,13 @@ spring:
   jpa:
     hibernate:
       ddl-auto: update
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://localhost:8080/realms/microservices
+          jwk-set-uri: http://localhost:8080/realms/microservices/protocol/openid-connect/certs
 
 eureka:
   client:

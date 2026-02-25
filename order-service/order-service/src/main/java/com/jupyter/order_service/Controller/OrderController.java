@@ -4,6 +4,7 @@ import com.jupyter.order_service.Client.UserClient;
 import com.jupyter.order_service.DTO.UserDTO;
 import com.jupyter.order_service.Entity.Order;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +18,7 @@ public class OrderController {
     private UserClient userClient;
 
     @PostMapping
+    @PreAuthorize("hasAuthority('SCOPE_orders.write')")
     public String createOrder(@RequestBody Order order) {
 
         UserDTO user = userClient.getUser(order.getUserId());
