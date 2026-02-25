@@ -22,13 +22,17 @@ distribuída utilizando o ecossistema Spring.
 
 ## 🏗️ Arquitetura do Sistema
 
-O sistema é composto por quatro aplicações independentes:
+Estratégia de autenticação escolhida: **Opção B (self-hosted)** com um
+novo `auth-service` baseado em Spring Authorization Server.
+
+O sistema é composto por cinco aplicações independentes:
 
 -   **eureka-server** → Service Discovery
 -   **api-gateway** → Roteamento centralizado
 -   **user-service** → Serviço de usuários (H2)
 -   **order-service** → Serviço de pedidos com comunicação entre
     serviços
+-   **auth-service** → Authorization Server OAuth2/OpenID Connect
 
 ------------------------------------------------------------------------
 
@@ -181,6 +185,55 @@ registry do Eureka.
 
 ------------------------------------------------------------------------
 
+## 5️⃣ Auth Service
+
+### 🎯 Responsabilidade
+
+Atua como Authorization Server central do ecossistema, emitindo JWTs
+assinados por chave RSA e disponibilizando endpoints OAuth2 padrão.
+
+### 📦 Dependências
+
+-   spring-boot-starter-oauth2-authorization-server
+-   spring-boot-starter-security
+-   spring-cloud-starter-netflix-eureka-client
+
+### 👥 Clientes OAuth2 configurados
+
+-   **gateway-client**
+    - grant: `client_credentials`
+    - autenticação: `client_secret_basic`
+    - scopes: `users.read`, `orders.read`
+
+-   **swagger-client**
+    - grants: `authorization_code`, `refresh_token`
+    - autenticação: `client_secret_basic`
+    - redirect URIs:
+        - `http://127.0.0.1:8080/login/oauth2/code/swagger`
+        - `http://localhost:8080/swagger-ui/oauth2-redirect.html`
+    - scopes: `openid`, `profile`, `users.read`
+
+### 🔐 Fluxos suportados
+
+-   `client_credentials` (integração serviço a serviço, sem usuário)
+-   `authorization_code` (aplicações com login de usuário)
+-   `refresh_token` (renovação de sessão)
+
+### 🌐 Endpoints OAuth2 padrão
+
+-   `POST /oauth2/token`
+-   `GET /oauth2/authorize`
+-   `GET /oauth2/jwks`
+-   `GET /.well-known/oauth-authorization-server`
+
+### ⚙️ Execução
+
+-   Porta padrão: `9000`
+-   Issuer: `http://localhost:9000`
+-   Registro no Eureka habilitado para descoberta interna
+
+------------------------------------------------------------------------
+
 # 🔄 Fluxo de Requisição
 
 Cliente → API Gateway → Eureka → Microsserviço alvo
@@ -210,6 +263,10 @@ Executar a aplicação `order-service`.
 ### 4️⃣ Subir o API Gateway
 
 Executar a aplicação `api-gateway`.
+
+### 5️⃣ Subir o Auth Service
+
+Executar a aplicação `auth-service`.
 
 ------------------------------------------------------------------------
 
